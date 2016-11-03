@@ -86,7 +86,7 @@ Cache files can also be passed to `add_job_step`:
 
 `cache_loc` and `cache_files` are optional parameters. `cache_files` should be a list of local paths of cache files, `cache_loc` is the S3 path where the cache files will be uploaded.
 
-- **Specify number of machines and the type of machines**: AWS has the concept of instance types to classify the computing power of their machines. To know, more about them, check out their instance type [page](https://aws.amazon.com/ec2/instance-types/).
+- **Specify number of machines and the type of machines**: AWS has the concept of instance types to classify the computing power of their machines. To know, more about them, check out their [instance type page](https://aws.amazon.com/ec2/instance-types/).
 
 The following is an example to add instance types, using the function `add_instance` of `AwsEmrHelper`:
 
@@ -96,6 +96,38 @@ The following is an example to add instance types, using the function `add_insta
 ... "TASK":{"instance_type":"r3.xlarge","num_instances":1,"market":"SPOT","name":"Worker Nodes","bid_multiplier":1.3}}
 >>> conn_emr.add_instance(instance_config)
 ``` 
+
+In the `instance_config` dictionary, `instance_type` are the type of instance, `num_instances` are the number of instances to be added to cluster for the specific role, `market` can be set to only two options - `ON_DEMAND` or `SPOT`. (To know more about On Demand and Spot, go to AWS's [instance market page](https://aws.amazon.com/ec2/spot/)), `name` is the name for role instances. `name` can only be set to three options - `MASTER`,`CORE` and `TASK`. `bid_multiplier` is only applicable if market is set to SPOT, it multiplies spot instances rate by this multiplier to get bid price.
+
+- **Runnin the job**: Once, the step has been added to the job (multiple steps can be added to the same job) and the number of machines have been specified, to run the job:
+
+```bash
+>>> cluster_name = 'My Job'
+>>> conn_emr.run_job(cluster_name,'emr-logs/',release_label='emr-5.0.0')
+```
+
+here, `emr-logs/` is the S3 path where logs for this job will be created. `release_label` is the version of EMR to be used. `release_label` is to be used for version 4.x and above. Another optional parameter `ami_version` is to be used for version 3.xx and lower. `run_job` will output the job ID:
+
+```bash
+JobId is : j-2EXXXXXXXXX
+```
+
+Once, the job is started, use `get_cluster_status` function of `AwsEmrHelper` to check the status of your job. `get_cluster_status()` doesn't take any arguments.
+
+- **(Optional) Adding bootstrap parameters**: Bootstrap parameters can also be added to a job. However, this is optional, and is not a hard requirement to run the job flow. To add bootstrap parameters, refer the example below:
+
+```bash
+>>> params = ['-s','mapred.skip.mode.enabled=true', \\
+... '-s', 'mapred.skip.map.max.skip.records=1',\\
+... '-s', 'mapred.skip.attempts.to.start.skipping=2']
+>>> conn_emr.add_bootstrap_actions('myntra-datasciences/cip/bootstrap-actions/configure-hadoop',params)
+```
+
+The first argument to `add_bootstrap_actions` is the S3 path, where the bootstrap parameters mentioned in the list `params` will be stored. To know more about bootstrap parameters, refer to AWS [bootstrapping page](http://docs.aws.amazon.com/ElasticMapReduce/latest/DeveloperGuide/emr-plan-bootstrap.html)
+
+### Example
+
+A working example for both `AwsS3Helper` and `AwsEmrHelper` is given in `example.py`. 
 
 ### Note
 
