@@ -136,7 +136,7 @@ class AwsEmrHelper:
         self.conn_s3 = AwsS3Helper(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
         self.conn_emr = boto3.client("emr", region_name = region_name, aws_access_key_id = AWS_ACCESS_KEY_ID, \
             aws_secret_access_key = AWS_SECRET_ACCESS_KEY)
-        self.config_bootstrapper = None
+        self.config_bootstrapper = []
         self.s3n = "s3n://"
         self.instance_list = []
         self.steps= []
@@ -256,7 +256,6 @@ class AwsEmrHelper:
                 add_bootstrap_actions('s3_bucket/some_path/',params,bootstrap_title="Parameters to handle Bad Input")
         '''
         bootstrap_action = {"Name":bootstrap_title, "ScriptBootstrapAction":{"Path":"s3://" + bootstrap_path, "Args":bootstrap_params}}
-        if not self.config_bootstrapper: self.config_bootstrapper = []
         self.config_bootstrapper.append(bootstrap_action)
 
     def set_mapper_loc(self, mapper_loc, mapper_fname):
