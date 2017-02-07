@@ -10,7 +10,6 @@ region_name = 'us-southwest-1'
 
 def example_s3():
     conn_s3 = AwsS3Helper(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, region_name=region_name)
-
     conn_s3.upload_file('s3_bucket/s3_path/file.txt','/home/abc/local_dir/file.txt')
     conn_s3.download_file('s3_bucket/s3_path/file.txt','/home/abc/local_dir/file.txt')
     conn_s3.del_file('s3_bucket/s3_path/file.txt')
@@ -49,7 +48,8 @@ def example_emr():
         print jobstate
         time.sleep(60)
 
-if __name__=="__main__"
+if __name__=="__main__":
+    example_s3()
 
 
 

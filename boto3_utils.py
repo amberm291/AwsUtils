@@ -101,9 +101,17 @@ class AwsS3Helper:
                 list_keys('s3_bucket/s3_path/')
         '''
         bucket, key = self.set_key(prefix_name)
-        response = self.conn.list_objects(Bucket=bucket,Prefix=key)
-        if "Contents" not in response: return []
-        return map(lambda x:bucket + "/" + x["Key"], response["Contents"])
+        is_truncated = True
+        result = []
+        marker = ""
+        while is_truncated:
+            response = self.conn.list_objects(Bucket=bucket,Prefix=key,Delimiter=",",Marker=marker)
+            if "Contents" not in response: break
+            result.extend(response["Contents"])
+            is_truncated = response["IsTruncated"]
+            if "NextMarker" not in response: break
+            marker = response["NextMarker"]
+        return map(lambda x:bucket + "/" + x["Key"], result)
                 
     def copy_key(self, src_key, dst_key):
         '''
