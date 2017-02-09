@@ -103,10 +103,10 @@ In the `instance_config` dictionary, `instance_type` are the type of instance, `
 
 ```bash
 >>> cluster_name = 'My Job'
->>> conn_emr.run_job(cluster_name,'emr-logs/',release_label='emr-5.0.0')
+>>> conn_emr.run_job(cluster_name,'emr-logs/',release_label='emr-5.0.0', enable_debugging=True)
 ```
 
-here, `emr-logs/` is the S3 path where logs for this job will be created. `release_label` is the version of EMR to be used. `release_label` is to be used for version 4.x and above. Another optional parameter `ami_version` is to be used for version 3.xx and lower. `run_job` will output the job ID:
+here, `emr-logs/` is the S3 path where logs for this job will be created. `release_label` is the version of EMR to be used. `release_label` is to be used for version 4.x and above. Another optional parameter `ami_version` is to be used for version 3.xx and lower. Setting `enable_debugging` flag to `True` will enable debugging for the hadoop job. This flag is set to `False` by default. `run_job` will output the job ID:
 
 ```bash
 JobId is : j-2EXXXXXXXXX

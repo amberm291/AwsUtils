@@ -302,6 +302,25 @@ class AwsEmrHelper:
         self.conn_s3.upload_file(reducer_loc,reducer_fname)
         self.reducer_loc = self.s3n + reducer_loc
 
+    def get_debugging_step(self):
+        '''
+            Function to get debuggin step.
+            PARAMETERS: None
+
+            OUTPUT: dict containing debug step actions
+
+            USAGE:
+                get_debugging_step()
+        '''
+        return {
+                "Name": "Setup Hadoop Debugging",
+                "ActionOnFailure": "TERMINATE_JOB_FLOW",
+                "HadoopJarStep": {
+                    "Jar": "command-runner.jar",
+                    "Args": ["state-pusher-script"]
+                }
+            }
+
     def add_job_step(self, step_name, input_path, output_path, mapper_path, mapper_fname, reducer_path=None, 
                     reducer_fname=None, del_existing_path=False, cache_files=[], cache_loc=None):
         '''
@@ -401,7 +420,7 @@ class AwsEmrHelper:
                 role_dict["BidPrice"] = self.get_spot_price(instance_dict[key])
             self.instance_list.append(role_dict)
 
-    def run_job(self, cluster_name, log_path, tags_list=None, ami_version=None, release_label=None):
+    def run_job(self, cluster_name, log_path, tags_list=None, ami_version=None, release_label=None, enable_debugging=False):
         '''
             Function to start job flow.
 
@@ -410,13 +429,16 @@ class AwsEmrHelper:
                 log_path (string): s3 path where logs will be stored for job
                 tags_list (list): list of dictionary containing tags, if any, to be added to the cluster.
                 ami_version (string): AMI version to be used. Should be used only for EMR 3 and below. At least one of ami_version or release_label should be specified.
-                release_label (string): TO be used for EMR 4 and above.
+                release_label (string): To be used for EMR 4 and above.
+                enable_debugging (boolean): Flag to enable debugging. BY default set to False. 
 
             OUTPUT: None
 
             USAGE: conn_emr.run_job('Test Cluster','emr-logs/',tags_list=[{'Key':'abc','Value':'xyz'}],release_label='emr-5.0.0')
 
         '''
+        if enable_debugging:
+            self.steps = [self.get_debugging_step()] + self.steps
         if len(self.instance_list) == 0:
             raise ValueError("No instance configurations specified.")
         if len(self.steps) == 0:
