@@ -353,7 +353,7 @@ class AwsEmrHelper:
                     self.conn_s3.upload_file(cache_loc + fname, path)
                     files.append(self.s3n + cache_loc + fname + "#" + fname)
             else:
-                cache_files = map(lambda x:s3n + cache_files + "#" + x.split("/")[-1],cache_files)
+                cache_files = map(lambda x: self.s3n + x + "#" + x.split("/")[-1],cache_files)
                 files.extend(cache_files)
 
         self.reducer_loc = None
