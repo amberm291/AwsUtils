@@ -132,16 +132,15 @@ class AwsS3Helper:
 
     def get_last_modified(self, path):
         '''
-            To upload a S3 object
+            To get last modified timestamp of an object
 
             PARAMETERS:
-                path (string): s3 path where file to be uploaded. Should be specified as bucket + key.
-                inpfname (string): local path of file to be uploaded
+                path (string): s3 path of object
 
-            RETURNS: None
+            RETURNS: Python datetime object
 
             USAGE:
-                upload_file('s3_bucket/s3_path/file.txt','/home/abc/local_dir/file.txt')
+                get_last_modified('s3_bucket/s3_path/file.txt')
         '''
         bucket, key = self.set_key(path)
         object_info = self.resource.Object(bucket, key)
@@ -340,7 +339,7 @@ class AwsEmrHelper:
             }
 
     def add_job_step(self, step_name, input_path, output_path, mapper_path, mapper_fname, reducer_path=None, 
-                    reducer_fname=None, del_existing_path=False, cache_files=[], cache_loc=None):
+                    reducer_fname=None, del_existing_path=False, cache_files=[], cache_loc=None, additional_args=[]):
         '''
             Function to add steps to a job flow. All steps needs to be added before job flow starts.
 
@@ -355,6 +354,7 @@ class AwsEmrHelper:
                 (OPTIONAL) del_exisitng_path (bool): Flag to clear output s3 path if it exists. Default is set to False. Set to True to clear s3 path if it exists.
                 (OPTIONAL) cache_files (list): list of cache files to be provided during runtime. If cache_loc is not provided, then cache_files need to be a list of s3 paths. If cache_loc is provided, then cache_files should be a list of local paths.
                 (OPTIONAL) cache_loc (string): s3 path where cache files to be uploaded.
+		(OPTIONAL) additional_args: additional arguments to be passed to hadoop execution.
 
             OUTPUT: None
 
@@ -394,6 +394,8 @@ class AwsEmrHelper:
 
         if reducer_path and reducer_fname:
             args.extend(["-reducer","python2.7 " + reducer_fname])
+	
+	args.extend(additional_args)
 
         step_dict = {
                     "Name": step_name,
