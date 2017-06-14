@@ -130,6 +130,24 @@ class AwsS3Helper:
         bucket ,key = self.set_key(dst_key)
         self.conn.copy_object(Bucket=bucket,CopySource=src_key,Key=key)
 
+    def get_last_modified(self, path):
+        '''
+            To upload a S3 object
+
+            PARAMETERS:
+                path (string): s3 path where file to be uploaded. Should be specified as bucket + key.
+                inpfname (string): local path of file to be uploaded
+
+            RETURNS: None
+
+            USAGE:
+                upload_file('s3_bucket/s3_path/file.txt','/home/abc/local_dir/file.txt')
+        '''
+        bucket, key = self.set_key(path)
+        object_info = self.resource.Object(bucket, key)
+        timestamp = object_info.last_modified
+        return timestamp
+
 class AwsEmrHelper:
     def __init__(self,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,region_name="ap-southeast-1",):
         '''
